@@ -1,4 +1,3 @@
-[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/ReF2p7PF)
 
 <!-- README.md is generated from README.Rmd. Please edit the README.Rmd file -->
 
@@ -16,4 +15,12 @@ you are done with your submission.
 
 # Lab 4: Scraping (into) the Hall of Fame
 
-![](README_files/figure-gfm/unnamed-chunk-1-1.png)<!-- -->
+    ## package 'Lahman' successfully unpacked and MD5 sums checked
+    ## 
+    ## The downloaded binary packages are in
+    ##  C:\Users\gizmo\AppData\Local\Temp\RtmpY5A9Yx\downloaded_packages
+
+![](README_files/figure-gfm/unnamed-chunk-1-1.png)<!-- --> \# Hall of
+Fame Dataset
+
+## Scraping

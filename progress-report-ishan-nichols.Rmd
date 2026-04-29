@@ -1,5 +1,5 @@
 ---
-title: "progress-report-<ishan-nichols>"
+title: "progress-report-ishan-nichols "
 output: html_document
 date: "2026-04-29"
 ---
@@ -10,20 +10,35 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## R Markdown
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+```{r}
+library(tidyverse)
+library(rvest)
+library(janitor)
+library(Lahman)
 
-```{r cars}
-summary(cars)
+website <- read_html("https://www.baseball-reference.com/awards/hof_2026.shtml")
+
+df <- website %>% html_element("#hof_BBWAA") %>% html_table() 
+
+head(df)
+
+df <- df %>% row_to_names(1) %>% clean_names 
+
+df <- df %>% select(1:10)
+
+
+```
+```{r}
+df %>% mutate(votes = as.numeric(votes), percent_vote = as.numeric(str_remove(percent_vote, "%")), yo_b = as.numeric(str_remove(yo_b, "st|th|rd|nd")), ho_fm = as.numeric(ho_fm), ho_fs = as.numeric(ho_fs),yrs = as.numeric(yrs))
+
+
 ```
 
-## Including Plots
 
-You can also embed plots, for example:
+```{r}
+hof <- Lahman::HallOfFame
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+hof
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

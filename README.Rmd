@@ -19,6 +19,9 @@ All submissions to the github repo will be automatically uploaded for grading on
 
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
+install.packages("Lahman", repos = "https://cran.rstudio.com")
+library(Lahman)
+
 hof <- Lahman::HallOfFame
 hof %>% 
   ggplot(aes(x = yearID, y = votes/needed*100, group=playerID)) +
@@ -29,3 +32,35 @@ hof %>%
   xlim(c(2000, 2022)) +
   ylab("Percent of votes")
 ```
+# Hall of Fame Dataset
+
+## Scraping
+
+```{r}
+library(tidyverse)
+library(rvest)
+library(janitor)
+library(Lahman)
+
+website <- read_html("https://www.baseball-reference.com/awards/hof_2026.shtml")
+
+df <- website %>% html_element("#hof_BBWAA") %>% html_table() 
+df <- df %>% row_to_names(1) %>% clean_names %>% select(1:10)
+
+```
+
+
+
+
+```{r}
+df %>% mutate(votes = as.numeric(votes), percent_vote = as.numeric(str_remove(percent_vote, "%")), yo_b = as.numeric(str_remove(yo_b, "st|th|rd|nd")), ho_fm = as.numeric(ho_fm), ho_fs = as.numeric(ho_fs),yrs = as.numeric(yrs), inducted = percent_vote >= 75)
+```
+
+
+```{r}
+df
+final_df <- df %>% select(1:5)
+```
+
+
+
