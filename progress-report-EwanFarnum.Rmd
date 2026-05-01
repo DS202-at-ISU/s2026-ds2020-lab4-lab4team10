@@ -13,7 +13,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r}
 library(rvest)
 library(tidyverse)
-library(dplyr)
+library(readr)
 
 url <- "https://www.baseball-reference.com/awards/hof_2026.shtml"
 
@@ -29,18 +29,23 @@ hof <- hof[-1, ]
 ```
 
 ```{r}
-hof_clean <- hof %>%
+hof_2026 <- hof %>%
  select(Name, Votes, `%vote`, Yrs) %>%
-  rename(
-    percent = `%vote`,
-    Years = Yrs
-  ) %>%
   mutate(
-    Name = str_remove(Name, "^X"),
+    YearID = 2026,
+    Name = gsub("^X", "", Name),
+     Name = gsub("-", "", Name),
      Name = str_remove(Name, "-"),
     Votes = as.numeric(Votes),
-    percent = as.numeric(str_remove(percent, "%")),
-    Years = as.numeric(Years),
-    Inducted = ifelse(percent >= 75, "Y", "N")
+    percent_vote = readr::parse_number(`%vote`),
+    Yrs = as.numeric(Yrs),
+    Inducted = ifelse(percent_vote >= 75, "Y", "N")
   )
+```
+```{r}
+hof_2026 <- hof_2026 %>%
+  select(Name, YearID, Yrs, Votes, percent_vote, Inducted)
+```
+```{r}
+write.csv(hof_2026, file="HallofFame_2026.csv", row.names = FALSE)
 ```
