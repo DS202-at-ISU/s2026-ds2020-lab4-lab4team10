@@ -1,0 +1,46 @@
+---
+title: "progress-report-EwanFarnum.Rmd"
+output: html_document
+date: "2026-04-30"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+```{r}
+library(rvest)
+library(tidyverse)
+library(dplyr)
+
+url <- "https://www.baseball-reference.com/awards/hof_2026.shtml"
+
+page <- read_html(url)
+tables <- page %>% html_table(fill = TRUE)
+
+hof <- tables[[1]]
+
+names(hof) <- as.character(hof[1, ])
+hof <- hof[-1, ] 
+
+
+```
+
+```{r}
+hof_clean <- hof %>%
+ select(Name, Votes, `%vote`, Yrs) %>%
+  rename(
+    percent = `%vote`,
+    Years = Yrs
+  ) %>%
+  mutate(
+    Name = str_remove(Name, "^X"),
+     Name = str_remove(Name, "-"),
+    Votes = as.numeric(Votes),
+    percent = as.numeric(str_remove(percent, "%")),
+    Years = as.numeric(Years),
+    Inducted = ifelse(percent >= 75, "Y", "N")
+  )
+```
