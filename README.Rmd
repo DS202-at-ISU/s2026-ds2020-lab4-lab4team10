@@ -34,7 +34,7 @@ hof %>%
 ```
 # Hall of Fame Dataset
 
-## Scraping
+## Scraping and Cleaning
 
 ```{r}
 library(tidyverse)
@@ -47,13 +47,23 @@ website <- read_html("https://www.baseball-reference.com/awards/hof_2026.shtml")
 df <- website %>% html_element("#hof_BBWAA") %>% html_table() 
 df <- df %>% row_to_names(1) %>% clean_names %>% select(1:10)
 
+df <- df %>% rename("year_on_ballot" = yo_b, "rank" = rk)
+
+df <- df %>% mutate(votes = as.numeric(votes), percent_vote = as.numeric(str_remove(percent_vote, "%")), yo_b = as.numeric(str_remove(year_on_ballot, "st|th|rd|nd")), ho_fm = as.numeric(ho_fm), ho_fs = as.numeric(ho_fs),yrs = as.numeric(yrs), inducted = percent_vote >= 75)
+
+df <- df %>% select(-c(ho_fm, ho_fs, yrs, war, war7, yo_b))
+
+df <- df %>% mutate(inducted = if_else(inducted, "Y", "N"))
+
+write_csv(df, "HallOfFame_2026.csv")
 ```
 
 
 
 
-```{r}
-df %>% mutate(votes = as.numeric(votes), percent_vote = as.numeric(str_remove(percent_vote, "%")), yo_b = as.numeric(str_remove(yo_b, "st|th|rd|nd")), ho_fm = as.numeric(ho_fm), ho_fs = as.numeric(ho_fs),yrs = as.numeric(yrs), inducted = percent_vote >= 75)
+
+
+
 ```
 
 
