@@ -1,0 +1,68 @@
+---
+title: "progress-report-knousk"
+author: "Keaton Knous"
+date: "2026-05-04"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Step 1: Scrape the Data
+
+```{r}
+library(rvest)
+library(tidyverse)
+library(readr)
+library(Lahman)
+
+url <- "https://www.baseball-reference.com/awards/hof_2026.shtml"
+html <- read_html(url)
+tables <- html_table(html)
+
+data <- tables[[1]]
+actual_col_names <- data[1, ]
+colnames(data) <- actual_col_names
+data <- data[-1, ]
+```
+I scraped the 2026 Hall of Fame ballot from Baseball Reference, which contains the full BBWAA voting results. I selected the first table from the page, and fixed the column names since they were stored in the first row of the data.
+
+## Step 2: Clean the Data
+
+```{r}
+hof_2026 <- data %>%
+  select(Name, Votes, `%vote`) %>%
+  mutate(
+    yearID = 2026,
+    Name = gsub("X-", "", Name),   
+    Votes = as.numeric(Votes),
+    percent_vote = readr::parse_number(`%vote`),
+    inducted = ifelse(percent_vote >= 75, "Y", "N")
+  )
+
+head(hof_2026)
+```
+I kept the Name, Votes, and %vote columns as they contained the most relevant information. I removed the "X-" prefix from player names that did not make the hall of fame. I also identified inducted players as anyone who received 75% or more of the vote.
+
+## Step 3: Compare to Lahman
+
+```{r}
+lahman_2026 <- HallOfFame %>%
+  filter(yearID == 2026)
+
+#Row
+nrow(hof_2026)
+nrow(lahman_2026)
+
+#Counts
+hof_2026 %>% count(inducted)
+lahman_2026 %>% count(votedBy, inducted)
+```
+The scraped Baseball Reference data has 27 rows while the Lahman data for 2026 only has 8 rows. This is because Baseball Reference shows the full BBWAA ballot of all 27 candidates, while the Lahman HallOfFame table for 2026 only records the Contemporary Era committee votes, which is a separate voting body with a much smaller ballot.
+
+## Step 4: Save the CSV
+
+```{r}
+write.csv(hof_2026, file = "HallOfFame_2026.csv", row.names = FALSE)
+```
