@@ -1,0 +1,60 @@
+---
+title: "progress-report-TreyHartung"
+author: "Trey Hartung"
+date: "2026-05-04"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#Scrape data
+
+```{r}
+library(tidyverse)
+library(rvest)
+library(readr)
+library(Lahman)
+
+url <- "https://www.baseball-reference.com/awards/hof_2026.shtml"
+
+page <- read_html(url)
+
+tables <- html_table(page, fill = TRUE)
+
+hof_scraped <- tables[[1]]
+colnames(hof_scraped) <- hof_scraped[1,]
+hof_scraped <- hof_scraped[-1, ]
+
+head(hof_scraped)
+```
+
+#Clean data
+
+```{r}
+hof_2026 <- hof_scraped %>%
+  select(Name, Votes, `%vote`, Yrs) %>%
+  mutate(
+    YearID = 2026,
+    Name = gsub("X-", "", Name),
+    Votes = as.numeric(Votes),
+    `%vote` = readr::parse_number(`%vote`),
+    Yrs = as.numeric(Yrs),
+    Inducted = ifelse(`%vote` >= 75, "Y", "N")
+  )
+
+head(hof_2026)
+```
+
+#Compare data
+
+```{r}
+lahman_2026 <- HallOfFame %>% 
+  filter(yearID == 2026)
+
+hof_2026 %>% 
+  count(Inducted)
+lahman_2026 %>% 
+  count(votedBy, inducted)
+```
